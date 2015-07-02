@@ -1,0 +1,267 @@
+Private Sub RPCancel_Click()
+
+Unload UP_ReinvestmentPriceForm
+End Sub
+
+Private Sub RPOK_Click()
+
+'=============================================================
+'Errors
+    
+If CMMTB = "" And SDTB = "" Then
+    MsgBox "Please fill one of the ratio's text box."
+    Exit Sub
+End If
+
+If RPCB = True And RPTB = "" Then
+    MsgBox "Please fill in the Reinvestment Price."
+    Exit Sub
+End If
+    
+If RPCB = True And CRRTB = "" Then
+    MsgBox "Please fill in the Currency."
+    Exit Sub
+End If
+    
+If CMMTB <> "" And SDTB <> "" Then
+    MsgBox "Please fill only one of the ratio formats."
+    Exit Sub
+End If
+    
+'Rearrange dates according to date format
+PDTB = Replace(PDTB, ".", "/")
+PDTB = Replace(PDTB, "-", "/")
+PDTB = Replace(PDTB, ",", "/")
+    
+If PDTB <> "" And IsDate(PDTB) = False Then
+    MsgBox "Pay Date must be a date."
+    Exit Sub
+End If
+    
+Call ReinvestmentUpdate1
+
+End Sub
+
+Private Sub ReinvestmentUpdate1()
+    
+    
+Application.ScreenUpdating = False
+
+'+++++ Variables +++++
+'Variable to contain and write text into document
+Dim NARRATIVEvar As String
+'Test if the french update is to be done
+Dim FrenchTest As Boolean
+'+++++++++++++++++++++
+
+If RPCB = True Then
+    
+    NARRATIVEvar = "Please be advised that the reinvestment price has been announced as [RCURRENCY] [RPRICE]."
+    
+    CRRTB = UCase(CRRTB)
+
+    RPTB = Replace(RPTB, ",", ".")
+    
+    NARRATIVEvar = Replace(NARRATIVEvar, "[RCURRENCY]", CRRTB)
+    NARRATIVEvar = Replace(NARRATIVEvar, "[RPRICE]", RPTB)
+    
+Else
+    
+    NARRATIVEvar = "Please be advised that the reinvestment price has been announced."
+
+End If
+
+Selection.TypeText NARRATIVEvar
+        
+Call InputDot_Paragraph
+
+If CMMTB <> "" Then
+    
+    NARRATIVEvar = "Holders who elected the reinvestment option will receive one new share for [RRATE] old shares."
+    
+    CMMTB = Replace(CMMTB, ",", ".")
+    
+    NARRATIVEvar = Replace(NARRATIVEvar, "[RRATE]", CMMTB)
+    
+Else
+    
+    NARRATIVEvar = "Holders who elected the reinvestment option will receive [RRATE] new shares for each old share."
+    
+    SDTB = Replace(SDTB, ",", ".")
+
+    NARRATIVEvar = Replace(NARRATIVEvar, "[RRATE]", SDTB)
+    
+End If
+
+Selection.TypeText NARRATIVEvar
+
+If PDCB = True And PDTB = "" Then
+
+    NARRATIVEvar = "Please note that the pay date for the stock option has been announced."
+    
+    Call InputDot_Paragraph
+      
+    Selection.TypeText NARRATIVEvar
+    
+ElseIf PDCB = True And PDTB <> "" Then
+
+    '+++++ Variables +++++
+    Dim DateE As String
+    Dim DateF As String
+    'Paydate with date
+    '+++++++++++++++++++++
+     
+    NARRATIVEvar = "Please note that the pay date, for the stock option, has been announced as [PDATE]."
+    
+    'Format dates according
+    'Module: Other
+    Call FormatDates(PDTB, DTBPUSCB, DateE, DateF)
+    
+    Call InputDot_Paragraph
+    
+    NARRATIVEvar = Replace(NARRATIVEvar, "[PDATE]", DateE)
+
+    Selection.TypeText NARRATIVEvar
+    
+End If
+
+'====================================================================================
+'==                                                                                ==
+'==___________________________________French_______________________________________==
+'==                                                                                ==
+'====================================================================================
+
+Call Find_French_Update(FrenchTest)
+
+If FrenchTest = True Then
+
+    If RPCB = True Then
+    
+        NARRATIVEvar = "Le prix de réinvestissement annoncé est égal à [RCURRENCY] [RPRICE]."
+
+        RPTB = Replace(RPTB, ".", ",")
+    
+        NARRATIVEvar = Replace(NARRATIVEvar, "[RCURRENCY]", CRRTB)
+        NARRATIVEvar = Replace(NARRATIVEvar, "[RPRICE]", RPTB)
+    
+    Else
+    
+        NARRATIVEvar = "Le prix de réinvestissement a été annoncé."
+
+    End If
+
+    Selection.TypeText NARRATIVEvar
+        
+    Call InputDot_Paragraph
+
+    If CMMTB <> "" Then
+        
+        NARRATIVEvar = "Les porteurs qui ont choisi l'option de réinvestissement recevront une nouvelle action pour [RRATE] anciens titres détenus."
+    
+        CMMTB = Replace(CMMTB, ".", ",")
+    
+        NARRATIVEvar = Replace(NARRATIVEvar, "[RRATE]", CMMTB)
+    
+    Else
+    
+        NARRATIVEvar = "Les porteurs ayant choisi l’option titres recevront [RRATE] nouvelles actions pour chaque ancienne action détenue."
+    
+        SDTB = Replace(SDTB, ".", ",")
+
+        NARRATIVEvar = Replace(NARRATIVEvar, "[RRATE]", SDTB)
+    
+    End If
+
+    Selection.TypeText NARRATIVEvar
+
+    If PDCB = True And PDTB = "" Then
+
+        NARRATIVEvar = "Veuillez noter que la date de paiement pour l’option de titres a été annoncée."
+    
+        Call InputDot_Paragraph
+          
+        Selection.TypeText NARRATIVEvar
+        
+    ElseIf PDCB = True And PDTB <> "" Then
+     
+        NARRATIVEvar = "Veuillez noter que la date de paiement pour l’option de titres est le [PDATE]."
+    
+        Call InputDot_Paragraph
+    
+        NARRATIVEvar = Replace(NARRATIVEvar, "[PDATE]", DateF)
+        
+        Selection.TypeText NARRATIVEvar
+        
+    End If
+    
+Else
+
+    Application.ScreenUpdating = True
+    
+    End
+
+End If
+
+Application.ScreenUpdating = True
+
+End
+
+
+End Sub
+
+Private Sub RPCB_AfterUpdate()
+
+If RPCB.Value = False Then
+    RPTB.Enabled = False
+    CRRTB.Enabled = False
+    RPTB = ""
+    CRRTB = ""
+End If
+    
+If RPCB.Value = True Then
+    RPTB.Enabled = True
+    CRRTB.Enabled = True
+End If
+    
+End Sub
+
+Private Sub CMMTB_AfterUpdate()
+
+If CMMTB.Value <> "" Then
+    SDTB.Enabled = False
+End If
+
+If CMMTB.Value = "" Then
+    SDTB.Enabled = True
+End If
+
+End Sub
+
+Private Sub SDTB_AfterUpdate()
+
+If SDTB.Value <> "" Then
+    CMMTB.Enabled = False
+End If
+
+If SDTB.Value = "" Then
+    CMMTB.Enabled = True
+End If
+    
+End Sub
+
+Private Sub PDCB_AfterUpdate()
+
+If PDCB.Value = True Then
+    PDTB.Enabled = True
+End If
+
+If PDCB.Value = False Then
+    PDTB.Enabled = False
+    PDTB = ""
+End If
+    
+End Sub
+
+Private Sub UserForm_Click()
+
+End Sub
