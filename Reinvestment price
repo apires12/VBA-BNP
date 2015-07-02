@@ -133,7 +133,7 @@ End If
 
 Call Find_French_Update(FrenchTest)
 
-If FrenchTest = True Then
+If NOFRCB = False And FrenchTest = True Then
 
     If RPCB = True Then
     
@@ -260,8 +260,4 @@ If PDCB.Value = False Then
     PDTB = ""
 End If
     
-End Sub
-
-Private Sub UserForm_Click()
-
 End Sub
