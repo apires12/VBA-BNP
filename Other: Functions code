@@ -1,0 +1,135 @@
+Public Sub InputDot_Paragraph()
+
+    Selection.TypeParagraph
+    Selection.TypeText TEXT:="."
+    Selection.TypeParagraph
+
+End Sub
+
+Public Sub FormatDates(Date1, Y_N, DateE, DateF)
+
+Dim Date1Fix As Variant
+Dim Date2 As Variant
+Dim MyDay As Variant
+Dim MyYear As Variant
+
+Dim MyMonthE As String
+Dim MyMonthF As String
+Dim Ultima As String
+Dim UltimaF As String
+
+'Split the date in 3: dd/mm/yyyy
+Date1Fix = Split(Date1, "/")
+
+'Creates a serial date matrix yyyy/mm/dd
+Date2 = DateSerial(Date1Fix(2), Date1Fix(1), Date1Fix(0))
+    
+If Month(Date2) = 1 Then
+    MyMonthE = "January"
+    MyMonthF = "janvier"
+ElseIf Month(Date2) = 2 Then
+    MyMonthE = "February"
+    MyMonthF = "février"
+ElseIf Month(Date2) = 3 Then
+    MyMonthE = "March"
+    MyMonthF = "mars"
+ElseIf Month(Date2) = 4 Then
+    MyMonthE = "April"
+    MyMonthF = "avril"
+ElseIf Month(Date2) = 5 Then
+    MyMonthE = "May"
+    MyMonthF = "mai"
+ElseIf Month(Date2) = 6 Then
+    MyMonthE = "June"
+    MyMonthF = "juin"
+ElseIf Month(Date2) = 7 Then
+    MyMonthE = "July"
+    MyMonthF = "juillet"
+ElseIf Month(Date2) = 8 Then
+    MyMonthE = "August"
+    MyMonthF = "août"
+ElseIf Month(Date2) = 9 Then
+    MyMonthE = "September"
+    MyMonthF = "septembre"
+ElseIf Month(Date2) = 10 Then
+    MyMonthE = "October"
+    MyMonthF = "octobre"
+ElseIf Month(Date2) = 11 Then
+    MyMonthE = "November"
+    MyMonthF = "novembre"
+ElseIf Month(Date2) = 12 Then
+    MyMonthE = "December"
+    MyMonthF = "décembre"
+End If
+
+MyDay = Format(Day(Date2))
+MyYear = Format(Year(Date2))
+
+If Day(Date2) = 1 Then
+    UltimaF = "er"
+End If
+
+If Y_N = True Then
+
+    If Day(Date2) = 1 Or Day(Date2) = 21 Or Day(Date2) = 31 Then
+        Ultima = "st"
+    ElseIf Day(Date2) = 2 Or Day(Date2) = 22 Then
+        Ultima = "nd"
+    ElseIf Day(Date2) = 3 Or Day(Date2) = 23 Then
+        Ultima = "rd"
+    Else
+        Ultima = "th"
+    End If
+    
+    DateE = MyMonthE & " " & MyDay & Ultima & ", " & MyYear
+    DateF = MyDay & UltimaF & " " & MyMonthF & " " & MyYear
+
+Else
+
+DateE = MyDay & " " & MyMonthE & " " & MyYear
+DateF = MyDay & Ultima1 & " " & MyMonthF & " " & MyYear
+
+End If
+
+Set Date1Fix = Nothing
+Set Date2 = Nothing
+Set MyDay = Nothing
+Set MyYear = Nothing
+
+MyMonthE = ""
+MyMonthF1 = ""
+Ultima = ""
+UltimaF = ""
+
+
+End Sub
+
+Public Sub Find_French_Update(FrenchTest)
+
+With Selection
+
+    .WholeStory
+    .HomeKey wdStory
+    .Find.Execute "Mise à jour"
+        
+    If Selection <> "Mise à jour" Then
+            
+        FrenchTest = False
+        
+        MsgBox "Update header in French not found. To deliver the update in French, please add the French update header."
+        Exit Sub
+    
+    Else
+        
+        FrenchTest = True
+        
+        .MoveDown Unit:=wdParagraph, Count:=1
+        .EndKey Unit:=wdLine
+        .TypeParagraph
+    
+    End If
+    
+End With
+    
+
+End Sub
