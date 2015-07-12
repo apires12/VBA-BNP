@@ -1,3 +1,5 @@
+Option Explicit
+
 Private Sub RPCancel_Click()
 
 Unload UP_ReinvestmentPriceForm
@@ -43,15 +45,18 @@ Call ReinvestmentUpdate1
 End Sub
 
 Private Sub ReinvestmentUpdate1()
-    
+
+'Last Modif 12.07.2015
     
 Application.ScreenUpdating = False
 
 '+++++ Variables +++++
 'Variable to contain and write text into document
 Dim NARRATIVEvar As String
-'Test if the french update is to be done
-Dim FrenchTest As Boolean
+'Place where the french update is to be done:
+'"Mise à jour" - Start at the top
+'"Message d'origine" - Start at the bottom
+Dim FrenchPlace As String: FrenchPlace = "Mise à jour"
 '+++++++++++++++++++++
 
 If RPCB = True Then
@@ -131,71 +136,75 @@ End If
 '==                                                                                ==
 '====================================================================================
 
-Call Find_French_Update(FrenchTest)
+Call Find_French_Update(FrenchPlace)
 
-If NOFRCB = False And FrenchTest = True Then
-
-    If RPCB = True Then
+If NOFRCB = False Then
     
-        NARRATIVEvar = "Le prix de réinvestissement annoncé est égal à [RCURRENCY] [RPRICE]."
-
-        RPTB = Replace(RPTB, ".", ",")
+    With Selection
     
-        NARRATIVEvar = Replace(NARRATIVEvar, "[RCURRENCY]", CRRTB)
-        NARRATIVEvar = Replace(NARRATIVEvar, "[RPRICE]", RPTB)
+        If RPCB = True Then
     
-    Else
+            NARRATIVEvar = "Le prix de réinvestissement annoncé est égal à [RCURRENCY] [RPRICE]."
+
+            RPTB = Replace(RPTB, ".", ",")
     
-        NARRATIVEvar = "Le prix de réinvestissement a été annoncé."
+            NARRATIVEvar = Replace(NARRATIVEvar, "[RCURRENCY]", CRRTB)
+            NARRATIVEvar = Replace(NARRATIVEvar, "[RPRICE]", RPTB)
+    
+        Else
+    
+            NARRATIVEvar = "Le prix de réinvestissement a été annoncé."
 
-    End If
+        End If
 
-    Selection.TypeText NARRATIVEvar
+        .TypeText NARRATIVEvar
         
-    Call InputDot_Paragraph
-
-    If CMMTB <> "" Then
-        
-        NARRATIVEvar = "Les porteurs qui ont choisi l'option de réinvestissement recevront une nouvelle action pour [RRATE] anciens titres détenus."
-    
-        CMMTB = Replace(CMMTB, ".", ",")
-    
-        NARRATIVEvar = Replace(NARRATIVEvar, "[RRATE]", CMMTB)
-    
-    Else
-    
-        NARRATIVEvar = "Les porteurs ayant choisi l’option titres recevront [RRATE] nouvelles actions pour chaque ancienne action détenue."
-    
-        SDTB = Replace(SDTB, ".", ",")
-
-        NARRATIVEvar = Replace(NARRATIVEvar, "[RRATE]", SDTB)
-    
-    End If
-
-    Selection.TypeText NARRATIVEvar
-
-    If PDCB = True And PDTB = "" Then
-
-        NARRATIVEvar = "Veuillez noter que la date de paiement pour l’option de titres a été annoncée."
-    
         Call InputDot_Paragraph
+
+        If CMMTB <> "" Then
+        
+            NARRATIVEvar = "Les porteurs qui ont choisi l'option de réinvestissement recevront une nouvelle action pour [RRATE] anciens titres détenus."
+    
+            CMMTB = Replace(CMMTB, ".", ",")
+    
+            NARRATIVEvar = Replace(NARRATIVEvar, "[RRATE]", CMMTB)
+    
+        Else
+    
+            NARRATIVEvar = "Les porteurs ayant choisi l’option titres recevront [RRATE] nouvelles actions pour chaque ancienne action détenue."
+        
+            SDTB = Replace(SDTB, ".", ",")
+
+            NARRATIVEvar = Replace(NARRATIVEvar, "[RRATE]", SDTB)
+    
+        End If
+
+        .TypeText NARRATIVEvar
+
+        If PDCB = True And PDTB = "" Then
+
+            NARRATIVEvar = "Veuillez noter que la date de paiement pour l’option de titres a été annoncée."
+    
+            Call InputDot_Paragraph
           
-        Selection.TypeText NARRATIVEvar
+            .TypeText NARRATIVEvar
         
-    ElseIf PDCB = True And PDTB <> "" Then
+        ElseIf PDCB = True And PDTB <> "" Then
      
-        NARRATIVEvar = "Veuillez noter que la date de paiement pour l’option de titres est le [PDATE]."
+            NARRATIVEvar = "Veuillez noter que la date de paiement pour l’option de titres est le [PDATE]."
     
-        Call InputDot_Paragraph
+            Call InputDot_Paragraph
     
-        NARRATIVEvar = Replace(NARRATIVEvar, "[PDATE]", DateF)
+            NARRATIVEvar = Replace(NARRATIVEvar, "[PDATE]", DateF)
         
-        Selection.TypeText NARRATIVEvar
+            .TypeText NARRATIVEvar
         
-    End If
+        End If
+    
+    End With
     
 Else
-
+    
     Application.ScreenUpdating = True
     
     End
