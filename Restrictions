@@ -1,0 +1,136 @@
+Private Sub RESTCancelButton_Click()
+
+End
+End Sub
+
+Private Sub RESTOKButton_Click()
+
+'=============================================================
+'Errors
+
+If RestTB = "" Then
+    
+    MsgBox "Please fill the New Restrictions field with the new restrictions."
+    Exit Sub
+
+End If
+
+Call RestrictionsUpdate
+
+End Sub
+    
+Private Sub RestrictionsUpdate()
+
+'Last Modif 12.07.2015
+
+Application.ScreenUpdating = False
+
+'+++++ Variables +++++
+'Variable to contain and write text into document
+Dim NARRATIVEvar As String
+'Place where the french update is to be done:
+'"Mise à jour" - Start at the top
+'"Message d'origine" - Start at the bottom
+Dim FrenchPlace As String: FrenchPlace = "Message d'origine"
+'+++++++++++++++++++++
+
+With Selection
+
+If FirstTimeCB = True Then
+
+    NARRATIVEvar = "Please note that restrictions have been announced."
+    
+Else
+
+    NARRATIVEvar = "Please note that restrictions have been updated."
+
+End If
+
+.TypeText NARRATIVEvar
+
+'====================================================================================
+'==                                                                                ==
+'==___________________________________French_______________________________________==
+'==                                                                                ==
+'====================================================================================
+
+Call Find_French_Update(FrenchPlace)
+
+If NOFRCB = False Then
+
+    If FirstTimeCB = True Then
+
+        NARRATIVEvar = "Veuillez prendre connaissance des restrictions annoncés."
+    
+    Else
+
+        NARRATIVEvar = "Veuillez prendre connaissance des restrictions mises à jour."
+
+    End If
+
+.TypeText NARRATIVEvar
+
+Call InputDot_Paragraph
+
+Else
+
+    Application.ScreenUpdating = True
+    
+    End
+    
+End If
+
+'====================================================================================
+'==                                                                                ==
+'==________________________________Restrictions____________________________________==
+'==                                                                                ==
+'====================================================================================
+
+'Move the cursor till the end of the existing text:
+.EndKey unit:=wdStory
+
+If FirstTimeCB = True Then
+
+    NARRATIVEvar = "[COMPSTART]" & RestTB & "[COMPEND]"
+
+    .TypeText NARRATIVEvar
+
+Else
+
+    NARRATIVEvar = "Updated restrictions:"
+
+    .TypeText NARRATIVEvar
+    Call InputDot_Paragraph
+
+    .TypeText RestTB
+    Call InputDot_Paragraph
+
+    NARRATIVEvar = "+++"
+    .TypeText NARRATIVEvar
+    
+    If NOFRCB = False Then
+    
+        Call InputDot_Paragraph
+        
+        NARRATIVEvar = "Restrictions mises à jour:"
+
+        .TypeText NARRATIVEvar
+        Call InputDot_Paragraph
+
+        .TypeText RestTB
+        Call InputDot_Paragraph
+
+        NARRATIVEvar = "+++"
+        .TypeText NARRATIVEvar
+    
+    End If
+    
+End If
+
+End With
+
+Application.ScreenUpdating = True
+
+End
+
+End Sub
