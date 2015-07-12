@@ -1,4 +1,4 @@
-Public Sub InputDot_Paragraph()
+Sub InputDot_Paragraph()
 
     Selection.TypeParagraph
     Selection.TypeText TEXT:="."
@@ -6,7 +6,7 @@ Public Sub InputDot_Paragraph()
 
 End Sub
 
-Public Sub FormatDates(Date1, Y_N, DateE, DateF)
+Sub FormatDates(Date1, Y_N, DateE, DateF)
 
 Dim Date1Fix As Variant
 Dim Date2 As Variant
@@ -104,31 +104,38 @@ UltimaF = ""
 
 End Sub
 
-Public Sub Find_French_Update(FrenchTest)
+Sub Find_French_Update(FrenchPlace)
 
 With Selection
 
     .WholeStory
     .HomeKey wdStory
-    .Find.Execute "Mise à jour"
+    .Find.Execute FrenchPlace
+
+    'If there is no disclaimer, the update in french is
+    'to be done at the end of the text
+    If Selection <> FrenchPlace Then
         
-    If Selection <> "Mise à jour" Then
-            
-        FrenchTest = False
+        .EndKey unit:=wdStory
         
-        MsgBox "Update header in French not found. To deliver the update in French, please add the French update header."
-        Exit Sub
-    
     Else
-        
-        FrenchTest = True
-        
-        .MoveDown Unit:=wdParagraph, Count:=1
-        .EndKey Unit:=wdLine
-        .TypeParagraph
     
+        If FrenchPlace = "Mise à jour" Then
+
+            .MoveDown unit:=wdParagraph, Count:=1
+            .EndKey unit:=wdLine
+            .TypeParagraph
+        
+        ElseIf FrenchPlace = "Message d'origine" Then
+            
+            .MoveUp unit:=wdParagraph, Count:=1
+            '.EndKey unit:=wdLine
+            '.TypeParagraph
+            
+        End If
+
     End If
-    
+
 End With
     
 
