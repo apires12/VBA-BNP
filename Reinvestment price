@@ -203,17 +203,15 @@ If NOFRCB = False Then
     
     End With
     
-Else
-    
-    Application.ScreenUpdating = True
-    
-    End
+Else: GoTo LineEnd
 
 End If
 
+LineEnd:
+
 Application.ScreenUpdating = True
 
-End
+Unload UP_ReinvestmentPriceForm
 
 
 End Sub
