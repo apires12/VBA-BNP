@@ -1,0 +1,62 @@
+
+Sub ADTX()
+
+Application.ScreenUpdating = False
+
+Selection.InsertParagraphBefore
+Selection.InsertBefore "[ADTXSTART]"
+Selection.InsertAfter "[ADTXEND]"
+
+Selection.InsertParagraphAfter
+
+Application.ScreenUpdating = True
+
+End Sub
+
+Sub COMP()
+
+Application.ScreenUpdating = False
+
+Selection.InsertParagraphBefore
+Selection.InsertBefore "[COMPSTART]"
+Selection.InsertAfter "[COMPEND]"
+
+Selection.InsertParagraphAfter
+
+Application.ScreenUpdating = True
+
+End Sub
+
+Sub WEBB()
+
+Application.ScreenUpdating = False
+
+Selection.InsertParagraphBefore
+Selection.InsertBefore "[WEBBSTART]"
+Selection.InsertAfter "[WEBBEND]"
+
+Selection.InsertParagraphAfter
+
+Application.ScreenUpdating = True
+
+End Sub
+
+Sub OFFO()
+
+Application.ScreenUpdating = False
+
+Selection.InsertParagraphBefore
+Selection.InsertBefore "[OFFOSTART]"
+Selection.InsertAfter "[OFFOEND]"
+
+Selection.InsertParagraphAfter
+
+Application.ScreenUpdating = True
+
+End Sub
+
+Sub OTHR()
+
+OTHRQUALIFFRM.Show
+
+End Sub
