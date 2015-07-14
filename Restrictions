@@ -74,9 +74,7 @@ Call InputDot_Paragraph
 
 Else
 
-    Application.ScreenUpdating = True
-    
-    End
+Else: GoTo LineRestrictions
     
 End If
 
@@ -85,6 +83,8 @@ End If
 '==________________________________Restrictions____________________________________==
 '==                                                                                ==
 '====================================================================================
+
+LineRestrictions:
 
 'Move the cursor till the end of the existing text:
 .EndKey unit:=wdStory
@@ -131,6 +131,6 @@ End With
 
 Application.ScreenUpdating = True
 
-End
+Unload UP_Restrictions
 
 End Sub
