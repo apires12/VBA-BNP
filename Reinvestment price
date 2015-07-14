@@ -46,7 +46,7 @@ End Sub
 
 Private Sub ReinvestmentUpdate1()
 
-'Last Modif 12.07.2015
+'Last Modif 14.07.2015
     
 Application.ScreenUpdating = False
 
