@@ -21,7 +21,7 @@ End Sub
     
 Private Sub RestrictionsUpdate()
 
-'Last Modif 12.07.2015
+'Last Modif 14.07.2015
 
 Application.ScreenUpdating = False
 
