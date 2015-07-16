@@ -207,7 +207,7 @@ End If
 
 Application.ScreenUpdating = True
 
-Unload UP_ReinvestmentPriceForm
+end
 
 End Sub
 
