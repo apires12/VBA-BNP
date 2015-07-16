@@ -72,10 +72,6 @@ If NOFRCB = False Then
 
 Call InputDot_Paragraph
 
-Else
-
-Else: GoTo LineRestrictions
-    
 End If
 
 '====================================================================================
