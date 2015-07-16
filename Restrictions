@@ -80,8 +80,6 @@ End If
 '==                                                                                ==
 '====================================================================================
 
-LineRestrictions:
-
 'Move the cursor till the end of the existing text:
 .EndKey unit:=wdStory
 
