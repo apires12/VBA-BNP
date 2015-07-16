@@ -125,6 +125,6 @@ End With
 
 Application.ScreenUpdating = True
 
-Unload UP_Restrictions
+end
 
 End Sub
