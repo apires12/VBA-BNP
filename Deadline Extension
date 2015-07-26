@@ -1,0 +1,332 @@
+Option Explicit
+
+Private Sub DECancel_Click()
+
+Unload UP_Extension_DDL
+End Sub
+
+Private Sub DDLOK_Click()
+
+'=============================================================
+'Errors
+
+If ExtCB = False And TecExtCB = False And AntiCB = False Then
+    MsgBox "Please choose one type of Deadline Update."
+    Exit Sub
+    
+ElseIf ExtCB = True And TecExtCB = True And AntiCB = False Then
+    MsgBox "Please choose only one type of Deadline Update."
+    Exit Sub
+    
+ElseIf ExtCB = True And TecExtCB = False And AntiCB = True Then
+    MsgBox "Please choose only one type of Deadline Update."
+    Exit Sub
+    
+ElseIf ExtCB = False And TecExtCB = True And AntiCB = True Then
+    MsgBox "Please choose only one type of Deadline Update."
+    Exit Sub
+    
+ElseIf ExtCB = True And TecExtCB = True And AntiCB = True Then
+    MsgBox "Please choose only one type of Deadline Update."
+    Exit Sub
+    
+End If
+
+'If NonRevocCB = True And NotvalidCB = True Then
+'    MsgBox "The Non Revocable Indicator and the Instructions Not Valid Indicator cannot be clicked simultaneously."
+'    Exit Sub
+    
+'End If
+
+'Rearrange dates according to date format
+MKTDDLTB = Replace(MKTDDLTB, ".", "/")
+MKTDDLTB = Replace(MKTDDLTB, "-", "/")
+
+If (AntiCB = True Or ExtCB = True) And MKTDDLTB = "" Then
+    MsgBox "Please insert the new Market Deadline."
+    Exit Sub
+    
+ElseIf MKTDDLTB <> "" And IsDate(MKTDDLTB) = False Then
+    MsgBox "The new deadline must be a date."
+    Exit Sub
+    
+End If
+
+'Rearrange dates according to date format
+REVOTB = Replace(REVOTB, ".", "/")
+REVOTB = Replace(REVOTB, "-", "/")
+
+If REVOTB <> "" And IsDate(REVOTB) = False Then
+    MsgBox "The new Revocability Deadline must be a date."
+    Exit Sub
+    
+End If
+
+If ValidCB = True And NotvalidCB = True Then
+    MsgBox "Instruction can only be either Valid or Invalid. Please check."
+    Exit Sub
+    
+End If
+
+Call Deadline_Extention
+
+End Sub
+
+Private Sub Deadline_Extention()
+
+'Last Modif 26.07.2015
+
+Application.ScreenUpdating = False
+
+'+++++ Variables +++++
+'Variable to contain and write text into document
+Dim NARRATIVEvar As String
+'Place where the french update is to be done:
+'"Mise à jour" - Start at the top
+'"Message d'origine" - Start at the bottom
+Dim FrenchPlace As String: FrenchPlace = "Mise à jour"
+'+++++++++++++++++++++
+
+If MKTDDLTB <> "" Or REVOTB <> "" Then
+
+    '+++++ Variables +++++
+    'dates
+    Dim DateE As String
+    Dim DateF As String
+    Dim DateFholder As String
+    '+++++++++++++++++++++
+
+End If
+
+If MKTDDLTB <> "" Then 'acrescentar after update para bloquear o MKTDDL quando techical extension
+
+    Call FormatDates(MKTDDLTB, DTBPUSCB, DateE, DateF)
+    
+    If AntiCB = True Then
+    
+        NARRATIVEvar = "Please be advised that this event has been brought forward to " & DateE & "."
+    
+    Else
+    
+        NARRATIVEvar = "Please be advised that this event has been extended until " & DateE & "."
+    
+    End If
+    
+    Selection.TypeText NARRATIVEvar
+    
+    Call InputDot_Paragraph
+    
+    NARRATIVEvar = "Your response deadline has been modified accordingly."
+
+Else
+    
+    'fazer filtro para ver se é extension ou anticipation
+    
+    NARRATIVEvar = "Please note that your deadline has been extended."
+
+End If
+
+Selection.TypeText NARRATIVEvar
+
+'keep the date for the french update
+DateFholder = DateF
+
+If NotvalidCB = True Then
+
+    Call InputDot_Paragraph
+    
+    NARRATIVEvar = "Instructions previously received are no longer valid."
+    
+    Selection.TypeText NARRATIVEvar
+    
+    Call InputDot_Paragraph
+    
+    NARRATIVEvar = "Kindly send new instructions by your response deadline."
+    
+    Selection.TypeText NARRATIVEvar
+    
+End If
+
+If ValidCB = True And NonRevocCB = True Then
+    
+    Call InputDot_Paragraph
+    
+    NARRATIVEvar = "Instructions previously received are still valid but may not be modified."
+        
+    Selection.TypeText NARRATIVEvar
+    
+    Call InputDot_Paragraph
+    
+    NARRATIVEvar = "Please note that instructions are irrevocable."
+    
+    Selection.TypeText NARRATIVEvar
+    
+ElseIf ValidCB = True And NonRevocCB = False Then
+    
+    Call InputDot_Paragraph
+    
+    NARRATIVEvar = "Instructions previously received are still valid."
+
+    Selection.TypeText NARRATIVEvar
+
+ElseIf ValidCB = False And NonRevocCB = True Then
+
+    Call InputDot_Paragraph
+    
+    NARRATIVEvar = "Please note that instructions are irrevocable."
+    
+    Selection.TypeText NARRATIVEvar
+    
+End If
+
+If REVOTB <> "" Then
+
+    Call InputDot_Paragraph
+    
+    Call FormatDates(REVOTB, DTBPUSCB, DateE, DateF)
+    
+    NARRATIVEvar = "The revocability deadline on the market is: " & DateE & "."
+    
+    Selection.TypeText NARRATIVEvar
+    
+End If
+
+'====================================================================================
+'==                                                                                ==
+'==___________________________________French_______________________________________==
+'==                                                                                ==
+'====================================================================================
+
+Call Find_French_Update(FrenchPlace)
+
+If NOFRCB = True Then
+
+    If MKTDDLTB <> "" Then
+    
+        If AntiCB = True Then
+    
+            NARRATIVEvar = "Cette opération a été anticipée au " & DateFholder & "."
+    
+        Else
+    
+            NARRATIVEvar = "Cette opération a été prolongée jusqu'au " & DateFholder & "."
+        
+        End If
+    
+        Selection.TypeText NARRATIVEvar
+    
+        Call InputDot_Paragraph
+    
+        NARRATIVEvar = "Votre date limite de réponse a été modifiée en conséquence."
+
+    Else
+    
+        'fazer filtro para ver se é extension ou anticipation
+    
+        NARRATIVEvar = "Votre date limite de reponse a été prolongée."
+
+    End If
+    
+    Selection.TypeText NARRATIVEvar
+    
+    
+    If NotvalidCB = True Then
+
+        Call InputDot_Paragraph
+    
+        NARRATIVEvar = "Les instructions précédemment reçues ont été annulées."
+    
+        Selection.TypeText NARRATIVEvar
+    
+        Call InputDot_Paragraph
+    
+        NARRATIVEvar = "Veuillez envoyer de nouvelles instructions avant votre date limite de réponse."
+    
+        Selection.TypeText NARRATIVEvar
+    
+    End If
+
+    If ValidCB = True And NonRevocCB = True Then
+    
+        Call InputDot_Paragraph
+    
+        NARRATIVEvar = "Les instructions précédemment reçues restent valides."
+        
+        Selection.TypeText NARRATIVEvar
+    
+        Call InputDot_Paragraph
+    
+        NARRATIVEvar = "Vous ne pouvez cependant pas les modifier."
+    
+        Selection.TypeText NARRATIVEvar
+    
+        Call InputDot_Paragraph
+    
+        NARRATIVEvar = "Les instructions sont irrévocables."
+    
+        Selection.TypeText NARRATIVEvar
+        
+    ElseIf ValidCB = True And NonRevocCB = False Then
+    
+        Call InputDot_Paragraph
+    
+        NARRATIVEvar = "Les instructions précédemment reçues restent valides."
+
+        Selection.TypeText NARRATIVEvar
+
+    ElseIf ValidCB = False And NonRevocCB = True Then
+
+        Call InputDot_Paragraph
+    
+        NARRATIVEvar = "Les instructions sont irrévocables."
+    
+        Selection.TypeText NARRATIVEvar
+    
+    End If
+    
+    If REVOTB <> "" Then
+
+        Call InputDot_Paragraph
+    
+        Call FormatDates(REVOTB, DTBPUSCB, DateE, DateF)
+    
+        NARRATIVEvar = "La date limite de révocabilité sur le marché est le " & DateF & "."
+    
+        Selection.TypeText NARRATIVEvar
+    
+    End If
+
+
+End If
+
+Application.ScreenUpdating = True
+
+End
+
+End Sub
+
+Private Sub NonRevocCB_AfterUpdate()
+
+If NonRevocCB.Value = True Then
+    REVOTB.Enabled = False
+    REVOTB = ""
+End If
+    
+If NonRevocCB.Value = False Then
+    REVOTB.Enabled = True
+End If
+    
+End Sub
+
+Private Sub TecExtCB_AfterUpdate()
+
+If TecExtCB.Value = True Then
+    MKTDDLTB.Enabled = False
+    MKTDDLTB = ""
+End If
+
+If TecExtCB.Value = False Then
+    MKTDDLTB.Enabled = True
+End If
+
+End Sub
