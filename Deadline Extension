@@ -98,7 +98,9 @@ If MKTDDLTB <> "" Or REVOTB <> "" Then
 
 End If
 
-If MKTDDLTB <> "" Then 'acrescentar after update para bloquear o MKTDDL quando techical extension
+With Selection
+
+If MKTDDLTB <> "" Then
 
     Call FormatDates(MKTDDLTB, DTBPUSCB, DateE, DateF)
     
@@ -112,7 +114,7 @@ If MKTDDLTB <> "" Then 'acrescentar after update para bloquear o MKTDDL quando t
     
     End If
     
-    Selection.TypeText NARRATIVEvar
+    .TypeText NARRATIVEvar
     
     Call InputDot_Paragraph
     
@@ -126,7 +128,7 @@ Else
 
 End If
 
-Selection.TypeText NARRATIVEvar
+.TypeText NARRATIVEvar
 
 'keep the date for the french update
 DateFholder = DateF
@@ -137,13 +139,13 @@ If NotvalidCB = True Then
     
     NARRATIVEvar = "Instructions previously received are no longer valid."
     
-    Selection.TypeText NARRATIVEvar
+    .TypeText NARRATIVEvar
     
     Call InputDot_Paragraph
     
     NARRATIVEvar = "Kindly send new instructions by your response deadline."
     
-    Selection.TypeText NARRATIVEvar
+    .TypeText NARRATIVEvar
     
 End If
 
@@ -153,13 +155,13 @@ If ValidCB = True And NonRevocCB = True Then
     
     NARRATIVEvar = "Instructions previously received are still valid but may not be modified."
         
-    Selection.TypeText NARRATIVEvar
+    .TypeText NARRATIVEvar
     
     Call InputDot_Paragraph
     
     NARRATIVEvar = "Please note that instructions are irrevocable."
     
-    Selection.TypeText NARRATIVEvar
+    .TypeText NARRATIVEvar
     
 ElseIf ValidCB = True And NonRevocCB = False Then
     
@@ -167,7 +169,7 @@ ElseIf ValidCB = True And NonRevocCB = False Then
     
     NARRATIVEvar = "Instructions previously received are still valid."
 
-    Selection.TypeText NARRATIVEvar
+    .TypeText NARRATIVEvar
 
 ElseIf ValidCB = False And NonRevocCB = True Then
 
@@ -175,7 +177,7 @@ ElseIf ValidCB = False And NonRevocCB = True Then
     
     NARRATIVEvar = "Please note that instructions are irrevocable."
     
-    Selection.TypeText NARRATIVEvar
+    .TypeText NARRATIVEvar
     
 End If
 
@@ -187,7 +189,7 @@ If REVOTB <> "" Then
     
     NARRATIVEvar = "The revocability deadline on the market is: " & DateE & "."
     
-    Selection.TypeText NARRATIVEvar
+    .TypeText NARRATIVEvar
     
 End If
 
@@ -213,7 +215,7 @@ If NOFRCB = True Then
         
         End If
     
-        Selection.TypeText NARRATIVEvar
+        .TypeText NARRATIVEvar
     
         Call InputDot_Paragraph
     
@@ -227,7 +229,7 @@ If NOFRCB = True Then
 
     End If
     
-    Selection.TypeText NARRATIVEvar
+    .TypeText NARRATIVEvar
     
     
     If NotvalidCB = True Then
@@ -236,13 +238,13 @@ If NOFRCB = True Then
     
         NARRATIVEvar = "Les instructions précédemment reçues ont été annulées."
     
-        Selection.TypeText NARRATIVEvar
+        .TypeText NARRATIVEvar
     
         Call InputDot_Paragraph
     
         NARRATIVEvar = "Veuillez envoyer de nouvelles instructions avant votre date limite de réponse."
     
-        Selection.TypeText NARRATIVEvar
+        .TypeText NARRATIVEvar
     
     End If
 
@@ -252,19 +254,19 @@ If NOFRCB = True Then
     
         NARRATIVEvar = "Les instructions précédemment reçues restent valides."
         
-        Selection.TypeText NARRATIVEvar
+        .TypeText NARRATIVEvar
     
         Call InputDot_Paragraph
     
         NARRATIVEvar = "Vous ne pouvez cependant pas les modifier."
     
-        Selection.TypeText NARRATIVEvar
+        .TypeText NARRATIVEvar
     
         Call InputDot_Paragraph
     
         NARRATIVEvar = "Les instructions sont irrévocables."
     
-        Selection.TypeText NARRATIVEvar
+        .TypeText NARRATIVEvar
         
     ElseIf ValidCB = True And NonRevocCB = False Then
     
@@ -272,7 +274,7 @@ If NOFRCB = True Then
     
         NARRATIVEvar = "Les instructions précédemment reçues restent valides."
 
-        Selection.TypeText NARRATIVEvar
+        .TypeText NARRATIVEvar
 
     ElseIf ValidCB = False And NonRevocCB = True Then
 
@@ -280,7 +282,7 @@ If NOFRCB = True Then
     
         NARRATIVEvar = "Les instructions sont irrévocables."
     
-        Selection.TypeText NARRATIVEvar
+        .TypeText NARRATIVEvar
     
     End If
     
@@ -292,12 +294,14 @@ If NOFRCB = True Then
     
         NARRATIVEvar = "La date limite de révocabilité sur le marché est le " & DateF & "."
     
-        Selection.TypeText NARRATIVEvar
+        .TypeText NARRATIVEvar
     
     End If
 
 
 End If
+
+End With
 
 Application.ScreenUpdating = True
 
