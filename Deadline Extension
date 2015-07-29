@@ -201,7 +201,7 @@ End If
 
 Call Find_French_Update(FrenchPlace)
 
-If NOFRCB = True Then
+If NOFRCB = false Then
 
     If MKTDDLTB <> "" Then
     
