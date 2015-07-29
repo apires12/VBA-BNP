@@ -1,3 +1,5 @@
+Option Explicit
+
 Private Sub RESTCancelButton_Click()
 
 Unload UP_Restrictions
