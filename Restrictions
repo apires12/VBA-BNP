@@ -1,6 +1,6 @@
 Private Sub RESTCancelButton_Click()
 
-End
+Unload UP_Restrictions
 End Sub
 
 Private Sub RESTOKButton_Click()
