@@ -1,3 +1,17 @@
+Option Private Module
+
+Sub TRPOLESHOW()
+
+TRPOLE.Show
+
+End Sub
+
+Sub DATEFORMAT()
+
+DATEFORMATFRM.Show
+
+End Sub
+
 Sub InputDot_Paragraph()
 
     Selection.TypeParagraph
@@ -140,3 +154,5 @@ End With
     
 
 End Sub
+
+sub
