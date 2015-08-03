@@ -156,3 +156,62 @@ End With
 End Sub
 
 sub
+
+Sub NumbersFormat(Number, Y_N, NumberE, NumberF)
+
+Dim NumberSplit() As String
+Dim varright As String
+Dim varleft As String
+Dim counter As Integer
+Dim nr As Integer: nr = 3
+Dim i As Integer
+Dim counter2 As Integer
+
+
+Number = Replace(Number, ",", ".")
+NumberSplit() = Split(Number, ".")
+
+
+Select Case Len(NumberSplit(0))
+
+    Case Is <= 3
+        
+        NumberE = Number
+        NumberF = Replace(Number, ".", ",")
+
+    Case Else
+
+        counter = Round((Len(NumberSplit(0)) / 3) - 0.51)
+
+        NumberE = NumberSplit(0)
+
+        counter2 = 0
+    
+        For i = 1 To counter
+
+            varright = Right(NumberE, nr)
+
+            varleft = Left(NumberE, Len(NumberSplit(0)) + counter2 - nr)
+        
+            NumberE = varleft & "," & varright
+
+            nr = nr + 4
+        
+            counter2 = counter2 + 1
+        
+        Next i
+    
+    NumberE = varleft & "," & varright & "." & NumberSplit(1)
+    
+End Select
+
+If Y_N = False Then
+
+    NumberF = Replace(NumberE, ",", "@")
+    NumberF = Replace(NumberF, ".", ",")
+    NumberF = Replace(NumberE, "@", ",")
+
+End If
+
+End Sub
+
