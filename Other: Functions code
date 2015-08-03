@@ -84,26 +84,27 @@ If Day(Date2) = 1 Then
 End If
 
 If Y_N = True Then
-
-    If Day(Date2) = 1 Or Day(Date2) = 21 Or Day(Date2) = 31 Then
-        Ultima = "st"
-    ElseIf Day(Date2) = 2 Or Day(Date2) = 22 Then
-        Ultima = "nd"
-    ElseIf Day(Date2) = 3 Or Day(Date2) = 23 Then
-        Ultima = "rd"
-    Else
-        Ultima = "th"
-    End If
+    
+    Select Case Day(Date2)
+    
+        Case Is = 1, Is = 21, Is = 31
+            Ultima = "st"
+        Case Is = 2, Is = 22
+            Ultima = "nd"
+        Case Is = 3, Is = 23
+            Ultima = "th"
+    
+    End Select
     
     DateE = MyMonthE & " " & MyDay & Ultima & ", " & MyYear
-    DateF = MyDay & UltimaF & " " & MyMonthF & " " & MyYear
-
+    
 Else
 
-DateE = MyDay & " " & MyMonthE & " " & MyYear
-DateF = MyDay & UltimaF & " " & MyMonthF & " " & MyYear
+    DateE = MyDay & " " & MyMonthE & " " & MyYear
 
 End If
+
+DateF = MyDay & UltimaF & " " & MyMonthF & " " & MyYear
 
 Set Date1Fix = Nothing
 Set Date2 = Nothing
