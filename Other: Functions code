@@ -101,7 +101,7 @@ If Y_N = True Then
 Else
 
 DateE = MyDay & " " & MyMonthE & " " & MyYear
-DateF = MyDay & Ultima1 & " " & MyMonthF & " " & MyYear
+DateF = MyDay & UltimaF & " " & MyMonthF & " " & MyYear
 
 End If
 
