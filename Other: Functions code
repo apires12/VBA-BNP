@@ -157,8 +157,6 @@ End With
 
 End Sub
 
-sub
-
 Sub NumbersFormat(Number, Y_N, NumberE, NumberF)
 
 Dim NumberSplit() As String
@@ -168,18 +166,19 @@ Dim counter As Integer
 Dim nr As Integer: nr = 3
 Dim i As Integer
 Dim counter2 As Integer
-
+Dim ArrayLenght As Integer
 
 Number = Replace(Number, ",", ".")
 NumberSplit() = Split(Number, ".")
 
+ArrayLenght = UBound(NumberSplit)
+Stop
 
 Select Case Len(NumberSplit(0))
 
     Case Is <= 3
         
         NumberE = Number
-        NumberF = Replace(Number, ".", ",")
 
     Case Else
 
@@ -203,7 +202,15 @@ Select Case Len(NumberSplit(0))
         
         Next i
     
-    NumberE = varleft & "," & varright & "." & NumberSplit(1)
+    If ArrayLenght = 0 Then
+    
+        NumberE = varleft & "," & varright
+    
+    Else
+    
+        NumberE = varleft & "," & varright & "." & NumberSplit(1)
+        
+    End If
     
 End Select
 
@@ -211,7 +218,7 @@ If Y_N = False Then
 
     NumberF = Replace(NumberE, ",", "@")
     NumberF = Replace(NumberF, ".", ",")
-    NumberF = Replace(NumberE, "@", ",")
+    NumberF = Replace(NumberF, "@", ".")
 
 End If
 
