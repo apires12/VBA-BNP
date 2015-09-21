@@ -1,0 +1,155 @@
+Option Explicit
+Option Private Module
+
+Sub Validation_Mandatory()
+
+Application.ScreenUpdating = False
+
+    Dim MyPath As String
+    Dim MyFile As String
+    Dim LatestFile As String
+    Dim LatestDate As Date
+    Dim LMD As Date
+
+'If document is not open, it will open it.
+'If Validationsheet is open runs the following code
+
+If AlreadyOpen("Validation sheet MAND events.xlsm") = False Then
+
+    MsgBox "Please open the 'Validation Sheet MAND events' document in order to run this macro."
+    Exit Sub
+    
+End If
+
+
+' ==========================================================================================================================
+    'Select the file on which the macro will be based. The newest file. The last being exported from NCS
+    
+    
+    'Specify the path to the folder
+    
+    MyPath = "U:\workarea\application data\BANK\NcsProd\export"
+    
+    'MyPath = "C:\Users\Antonio\Documents\Programming\VBA\Excel\Test"
+
+    'Make sure that the path ends in a backslash
+    If Right(MyPath, 1) <> "\" Then MyPath = MyPath & "\"
+    
+    'Get the first Excel file from the folder
+    MyFile = Dir(MyPath & "*.xls", vbNormal)
+    
+    'If no files were found, exit the sub
+    If Len(MyFile) = 0 Then
+        MsgBox "No files were found...", vbExclamation
+        Exit Sub
+    End If
+    
+'Loop through each Excel file in the folder, compares the dates of the files
+'and get the name of the latest file.
+Do While Len(MyFile) > 0
+    
+    'Assign the date/time of the current file to a variable
+    LMD = FileDateTime(MyPath & MyFile)
+        
+    'If the date/time of the current file is greater than the latest
+    'recorded date, assign its filename and date/time to variables
+    If LMD > LatestDate Then
+        LatestFile = MyFile
+        LatestDate = LMD
+    End If
+        
+    'Get the next Excel file from the folder
+    MyFile = Dir
+        
+Loop
+
+Dim CAID As String
+Dim ExDate As Date
+Dim RecordDate As Date
+Dim PayDate As Date
+Dim CARepQualif As String
+Dim AdjRecordDate As Date
+Dim DepoRef As String
+Dim EffectiveDate As Date
+Dim Surveillance As Date
+Dim DepoID As String
+Dim SetupResp As String
+Dim MyRange As Range
+
+    'Open the latest file
+    Workbooks.Open MyPath & LatestFile
+
+With ActiveWorkbook.Worksheets("Sheet1")
+
+    Set MyRange = Range(Cells(1, 1), Cells(2, 100))
+
+    CAID = Application.HLookup("CA Id", MyRange, 2, False)
+    
+    ExDate = Application.HLookup("Ex Date", MyRange, 2, False)
+
+    RecordDate = Application.HLookup("Record Date", MyRange, 2, False)
+    
+    PayDate = Application.HLookup("Earliest Payable Date ", MyRange, 2, False)
+    
+    CARepQualif = Left(Application.HLookup("Reporting Qualifier", MyRange, 2, False), 4)
+    
+    AdjRecordDate = Application.HLookup("Adjusted Record Date", MyRange, 2, False)
+    
+    DepoRef = Application.HLookup("Depo Ref", MyRange, 2, False)
+    
+    EffectiveDate = Application.HLookup("Effective Date", MyRange, 2, False)
+    
+    Surveillance = Application.HLookup("Surveillance Date", MyRange, 2, False)
+    
+    DepoID = Right(Left(Application.HLookup("Depository/Sub-Cust. ", MyRange, 2, False), 11), 4)
+    
+    SetupResp = Application.HLookup("Set-up Responsible", MyRange, 2, False)
+    
+End With
+
+Workbooks(LatestFile).Close
+
+Windows("Validation sheet MAND events.xlsm").Activate
+Sheets("Validation sheet").Select
+
+Cells(6, 7).Value = CAID
+Cells(11, 4).Value = SetupResp
+If Surveillance <> 0 Then
+    Cells(13, 4).Value = Surveillance
+End If
+
+If ExDate <> 0 Then
+Cells(18, 4).Value = ExDate
+End If
+
+If RecordDate <> 0 Then
+Cells(19, 4).Value = RecordDate
+End If
+
+If AdjRecordDate <> 0 Then
+Cells(20, 4).Value = AdjRecordDate
+End If
+
+If EffectiveDate <> 0 Then
+Cells(21, 4).Value = EffectiveDate
+End If
+
+Cells(5, 7).Value = DepoID
+Cells(5, 12).Value = CARepQualif
+Cells(7, 12).Value = DepoRef
+
+MAND_VSheet_Form.Show
+
+Application.ScreenUpdating = True
+
+End Sub
+
+Function AlreadyOpen(sFname As String) As Boolean
+    
+    Dim wkb As Workbook
+    On Error Resume Next
+    Set wkb = Workbooks(sFname)
+    AlreadyOpen = Not wkb Is Nothing
+    Set wkb = Nothing
+    
+End Function
