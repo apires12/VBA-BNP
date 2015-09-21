@@ -1,0 +1,519 @@
+Option Private Module
+
+Public cancel As Boolean
+
+Public RAAcc As String
+
+Sub InterbolsaINX()
+
+Application.ScreenUpdating = False
+
+    ActiveWorkbook.Worksheets("Sheet2").Cells.Clear
+'Stop
+    Dim sortrange As Range
+    Dim keyrange1 As Range
+    Dim keyrange2 As Range
+    
+    Dim i As Integer ' Nr de linhas das instruções depois de apagar tudo excepto 1 e 5. Reset algumas vezes
+    
+    Dim ShadowInd As Double
+    
+    ' contar quantas linhas tem o export
+    ' Total de colunas export NCS:55
+    ' Location ID: Coluna 49
+    
+    
+' ==========================================================================================================================
+
+
+' No final do loop i=numero de linhas no documento final
+
+With ActiveWorkbook.Worksheets("Sheet1")
+        
+        i = 2
+
+    Do Until .Cells(i, 1).Value = ""
+                
+        If .Cells(i, 1).Value <> "1" And .Cells(i, 1).Value <> "5" Then
+            .Rows(i).EntireRow.Delete
+            'Delete row if Option Seq. <> 1 or 5
+           
+        ElseIf .Cells(i, 8).Value = "CANCELLED                           " Or .Cells(i, 8).Value = "REJECTED                            " Then
+            .Rows(i).EntireRow.Delete
+            'Delete row if INX status is Cancelled or Rejected
+        
+        ElseIf Left(.Cells(i, 49).Value, 7) <> "000000E" Then
+            .Rows(i).EntireRow.Delete
+            'Delete row if Location is not "E"
+        
+        ElseIf .Cells(i, 36).Value = "y" Then
+            .Rows(i).EntireRow.Delete
+            'Delete row if Location is not "E"
+            
+        ElseIf .Cells(i, 35).Value = "y" Then
+            
+            ShadowInd = .Cells(i, 5).Value
+            ShadowInd = ShadowInd * (-1)
+'Stop
+            .Cells(i, 5).Value = ShadowInd
+            
+            i = i + 1
+            'If it concerns a shadow account, subtract the value
+            
+        ElseIf Left(.Cells(i, 49).Value, 9) = "000000E21" Then
+        
+            .Rows(i).EntireRow.Delete
+            'Delete row if it concerns a location not processed "E21XX"
+            
+        Else
+                    
+            i = i + 1
+            
+        End If
+        
+    Loop
+    
+'Stop
+
+End With
+
+' -----------------------------------------------------------------------
+    
+    
+'Ordenar as linhas restantes por Location, RA e por Option Seq.
+
+Set sortrange = Range(Cells(1, 1), Cells(i - 1, 55))
+Set keyrange1 = Range(Cells(1, 49), Cells(i - 1, 49)) 'Location
+Set keyrange2 = Range(Cells(1, 47), Cells(i - 1, 47)) 'RA
+Set keyrange3 = Range(Cells(1, 1), Cells(i - 1, 1)) 'Option Seq
+
+
+    
+ActiveWorkbook.Worksheets("Sheet1").Sort.SortFields.Clear
+ActiveWorkbook.Worksheets("Sheet1").Sort.SortFields.Add Key:=keyrange1, SortOn:=xlSortOnValues, Order:=xlAscending, DataOption:=xlSortNormal
+ActiveWorkbook.Worksheets("Sheet1").Sort.SortFields.Add Key:=keyrange2, SortOn:=xlSortOnValues, Order:=xlAscending, DataOption:=xlSortNormal
+ActiveWorkbook.Worksheets("Sheet1").Sort.SortFields.Add Key:=keyrange3, SortOn:=xlSortOnValues, Order:=xlAscending, DataOption:=xlSortNormal
+
+    
+With ActiveWorkbook.Worksheets("Sheet1").Sort
+    .SetRange sortrange
+    .Header = xlYes
+    .MatchCase = False
+    .Orientation = xlTopToBottom
+    .SortMethod = xlPinYin
+    .Apply
+End With
+
+' -----------------------------------------------------------------------
+
+
+'Filter por location e deliver de cada unique value na sheet2
+
+ActiveWorkbook.Worksheets("Sheet1").Range(Cells(1, 49), Cells(i - 1, 49)).AdvancedFilter Action:=xlFilterCopy, CopyToRange:=ActiveWorkbook.Worksheets("Sheet2").Range("A1"), Unique:=True
+
+' -----------------------------------------------------------------------
+
+Call INXLOCAL2
+
+
+Application.ScreenUpdating = True
+
+'===================================================================================================================
+
+End
+End Sub
+
+
+Private Sub INXLOCAL2()
+
+' Declaration of variables
+'================================================================================================================
+
+Dim ACCQTY As Double ' Accepted quantity
+Dim OVERQTY As Double ' OVER quantity
+Dim OVEREXERRTS As Double ' Quantity Exercised when OVER
+Dim SUMEXER As Double 'Sum of all EXER INX for ISI
+Dim SUMOVER As Double 'Sum of all OVER INX for ISI
+
+Dim ACCINTERBOLSA As String ' Variable Location - IBOLSA Account
+Dim LOCATION As String ' Location
+Dim strFileFullName As String
+Dim BPID As String
+
+Dim j As Integer ' sheet1 rows count
+Dim x As Integer ' sheet2 rows count
+Dim a As Integer ' Accounts worksheet rows count
+Dim y As Integer ' Contagem de loop
+Dim h As Integer ' Location row page 2
+Dim c As Integer ' Deliver column sheet2 EXER
+Dim o As Integer ' Deliver column sheet2 OVER
+Dim b As Integer ' Variable to count rows sheet 2
+
+'::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+
+
+
+' Index
+'================================================================================================================
+
+'Cells(j,1) -> Option Seq Column
+'Cells(j,5) -> Accepted Quantity Column
+'Cells(j,10) -> OVER quantity Column
+'Cells(j,28) -> Quantity Exercised when OVER Column
+'Cells(j,47) -> BPID (RA) Column
+'Cells(j,49) -> Location Column
+
+'::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+
+
+
+' Code
+'================================================================================================================
+
+j = 2
+h = 2
+c = 9
+o = 10
+
+strFileFullName = ActiveWorkbook.FullName
+strFileFullName = Right(strFileFullName, 42)
+
+'Stop
+
+With ActiveWorkbook.Worksheets("Sheet1")
+
+    Do Until .Cells(j, 1).Value = ""
+        
+        LOCATION = Right(Left(ActiveWorkbook.Worksheets("Sheet2").Cells(h, 1).Value, 11), 5)
+        
+        Call GETIACCOUNT(LOCATION, IAccount)
+        
+        Workbooks(strFileFullName).Activate
+
+        ActiveWorkbook.Worksheets("Sheet2").Cells(1, c).Value = LOCATION
+'Stop
+        ActiveWorkbook.Worksheets("Sheet2").Cells(1, c + 1).Value = IAccount
+        ActiveWorkbook.Worksheets("Sheet2").Cells(2, c).Value = "EXER"
+        ActiveWorkbook.Worksheets("Sheet2").Cells(2, o).Value = "OVER"
+'Stop
+        x = 3
+        b = 0
+        
+        Do Until .Cells(j, 49).Value <> ActiveWorkbook.Worksheets("Sheet2").Cells(h, 1).Value
+        
+        ACCQTY = 0
+        OVERQTY = 0
+        OVEREXERRTS = 0
+        SUMEXER = 0
+        SUMOVER = 0
+'Stop
+        BPID = Left(.Cells(j, 47).Value, 11)
+'Stop
+
+        Do Until .Cells(j, 1).Value <> "1" ' Sum of all Options 1 (EXER) for the same BPID (RA)
+            
+            ACCQTY = ACCQTY + .Cells(j, 5).Value
+               
+            If .Cells(j, 47).Value <> .Cells(j + 1, 47).Value Then
+                j = j + 1
+            
+                Exit Do
+            
+            ElseIf .Cells(j, 49).Value <> ActiveWorkbook.Worksheets("Sheet2").Cells(h, 1).Value Then
+                j = j + 1
+            
+                Exit Do
+            
+            End If
+        
+            j = j + 1
+            
+        Loop
+'Stop
+        y = 0
+    
+        If .Cells(j, 47).Value = .Cells(j - 1, 47).Value Then ' Deliver one OVER quantity and Exercised rights per row, and sum all the OVER to take from total exercise quantity of RA
+                                                              ' True means that there is oversbscription
+            Do Until .Cells(j - 1, 47).Value <> .Cells(j, 47).Value
+                
+                If .Cells(j, 49).Value <> ActiveWorkbook.Worksheets("Sheet2").Cells(h, 1).Value Then
+                
+                Exit Do
+                
+                Else
+'Stop
+                OVERQTY = OVERQTY + .Cells(j, 10).Value
+                OVEREXERRTS = OVEREXERRTS + .Cells(j, 28).Value
+'Stop
+                ActiveWorkbook.Worksheets("Sheet2").Cells(x + 1, c - 1) = Left(.Cells(j, 47).Value, 11)
+'Stop
+                ActiveWorkbook.Worksheets("Sheet2").Cells(x + 1, c) = .Cells(j, 28).Value
+                ActiveWorkbook.Worksheets("Sheet2").Cells(x + 1, o) = .Cells(j, 10).Value
+'Stop
+                j = j + 1
+                x = x + 1
+                y = y + 1
+                       
+                End If
+'Stop
+            Loop
+'Stop
+            If (ACCQTY - OVEREXERRTS) = 0 Then ' If all exercised rights correspond to instructions with OVER ((ACCQTY - OVEREXERRTS) = 0 -> true), the cell for the EXER quantity is deleted. If not, the net quantity is delivered.
+                
+                ActiveWorkbook.Worksheets("Sheet2").Cells(x - y, c - 1).Delete
+                ActiveWorkbook.Worksheets("Sheet2").Cells(x - y, c).Delete
+                ActiveWorkbook.Worksheets("Sheet2").Cells(x - y, o).Delete
+'Stop
+            Else
+'Stop
+                ActiveWorkbook.Worksheets("Sheet2").Cells(x - y, c - 1) = BPID
+                ActiveWorkbook.Worksheets("Sheet2").Cells(x - y, c) = (ACCQTY - OVEREXERRTS)
+'Stop
+                x = x + 1
+            
+            End If
+        
+        Else
+'Stop
+            ActiveWorkbook.Worksheets("Sheet2").Cells(x, c - 1) = BPID
+            ActiveWorkbook.Worksheets("Sheet2").Cells(x, c) = ACCQTY
+'Stop
+            x = x + 1
+    
+        End If
+        
+'Stop
+    Loop
+'Stop
+    Do Until ActiveWorkbook.Worksheets("Sheet2").Cells(3 + b, c) = "" ' Sum all EXER and OVER and write them
+    
+    SUMEXER = SUMEXER + ActiveWorkbook.Worksheets("Sheet2").Cells(3 + b, c).Value
+    SUMOVER = SUMOVER + ActiveWorkbook.Worksheets("Sheet2").Cells(3 + b, c + 1).Value
+    
+    b = b + 1
+    
+    Loop
+'Stop
+    ActiveWorkbook.Worksheets("Sheet2").Cells(x, c) = SUMEXER
+    ActiveWorkbook.Worksheets("Sheet2").Cells(x, c + 1) = SUMOVER
+    
+'Stop
+    
+
+    h = h + 1
+    c = c + 3 'EXER
+    o = o + 3 'OVER
+
+'Stop
+Loop
+
+End With
+
+Call CopyToTXT
+
+Workbooks("Accounts.xlsx").Close SaveChanges:=False
+
+
+End Sub
+
+Private Sub CopyToTXT()
+
+    Dim ISIN As String
+    Dim Accountnr As String
+    Dim ISIFinalLine As String
+    Dim ISIINXLine As String
+    Dim Zeroes As String
+    Dim ACCTXT As String
+    Dim EXERTXT As String
+    Dim OVERTXT As String
+    Dim SUMEXERTXT  As String
+    Dim SUMOVERTXT As String
+    Dim SUMTXT As String
+    
+    Dim ColPerLoc As Integer
+    Dim LinPerLoc As Integer
+    Dim Lenght As Integer
+    
+    Set fs = CreateObject("Scripting.FileSystemObject")
+    Set a = fs.CreateTextFile("U:\workarea\application data\BANK\NcsProd\export\PTMARKETINX.std", True)
+    
+    ISIN = Left(ActiveWorkbook.Worksheets("Sheet1").Cells(2, 50).Value, 12)
+    ColPerLoc = 9
+    
+    With ActiveWorkbook.Worksheets("Sheet2")
+    
+        Do Until .Cells(1, ColPerLoc).Value = ""
+            
+            LinPerLoc = 3
+            
+            LOCATION = Right(Left(ActiveWorkbook.Worksheets("Sheet2").Cells(1, ColPerLoc).Value, 11), 5)
+'Stop
+            On Error Resume Next
+            Accountnr = .Cells(1, ColPerLoc + 1).Value
+'Stop
+'=============================ERROR HANDLER=================================
+
+            If Err > 0 Then
+            
+                NoAccErrorForm.Label1.Caption = "There is no information on the RA Account Number for the Location " & LOCATION & ". Please insert manually the correspondent RA Account below. Also please request for the Accounts file to be updated."
+                NoAccErrorForm.Show
+'Stop
+                If cancel = True Then
+            
+                    MsgBox "The program cannot be executed without a RA Account Number for each Location. Please execute the Macro again and insert an account number", vbOKOnly, "Account information missing"
+                    Exit Sub
+                
+                Else
+                
+                .Cells(1, ColPerLoc + 1).Value = RAAcc
+                
+                End If
+            
+            End If
+            
+            On Error GoTo 0
+            
+'=============================ERROR HANDLER=================================
+
+            ISIFinalLine = "1801" & ISIN
+            ISIFinalLine = ISIFinalLine & Accountnr
+            ISIFinalLine = ISIFinalLine & "001" & "            "
+    
+'Stop
+            a.WriteLine (ISIFinalLine)
+'Stop
+                Do Until .Cells(LinPerLoc + 1, ColPerLoc).Value = ""
+                    
+'----------------------Account Nr (RA)----------------------
+                ACCTXT = .Cells(LinPerLoc, ColPerLoc - 1).Value
+                
+                Lenght = Len(.Cells(LinPerLoc, ColPerLoc - 1).Value)
+                Lenght = 12 - Lenght
+                
+                Zeroes = String(Lenght, "0")
+'Stop
+                ISIINXLine = "2" & Zeroes
+                ISIINXLine = ISIINXLine & ACCTXT
+'Stop
+'----------------------Exercise----------------------
+                EXERTXT = .Cells(LinPerLoc, ColPerLoc).Value
+                
+                Lenght = Len(.Cells(LinPerLoc, ColPerLoc).Value)
+                Lenght = 14 - Lenght
+                
+                Zeroes = String(Lenght, "0")
+'Stop
+                ISIINXLine = ISIINXLine & Zeroes
+                ISIINXLine = ISIINXLine & EXERTXT
+'Stop
+'----------------------OVER----------------------
+                OVERTXT = .Cells(LinPerLoc, ColPerLoc + 1).Value
+                
+                Lenght = Len(.Cells(LinPerLoc, ColPerLoc + 1).Value)
+                Lenght = 14 - Lenght
+                
+                Zeroes = String(Lenght, "0")
+'Stop
+                ISIINXLine = ISIINXLine & Zeroes
+                ISIINXLine = ISIINXLine & OVERTXT
+'Stop
+                
+                a.WriteLine (ISIINXLine)
+                
+                LinPerLoc = LinPerLoc + 1
+                
+            Loop
+                          
+'----------------------SUM----------------------
+            SUMEXERTXT = .Cells(LinPerLoc, ColPerLoc).Value
+            SUMOVERTXT = .Cells(LinPerLoc, ColPerLoc + 1).Value
+
+            Lenght = Len(.Cells(LinPerLoc, ColPerLoc).Value)
+            Lenght = 14 - Lenght
+                
+            Zeroes = String(Lenght, "0")
+            
+            SUMTXT = "3" & Zeroes
+            SUMTXT = SUMTXT & SUMEXERTXT
+            
+            Lenght = Len(.Cells(LinPerLoc, ColPerLoc + 1).Value)
+            Lenght = 14 - Lenght
+                
+            Zeroes = String(Lenght, "0")
+            
+            SUMTXT = SUMTXT & Zeroes & SUMOVERTXT & "            "
+            
+            a.WriteLine (SUMTXT)
+'Stop
+            ColPerLoc = ColPerLoc + 3
+'Stop
+        Loop
+
+End With
+
+a.Close
+
+End Sub
+
+Private Sub GETIACCOUNT(LOCATION, IAccount)
+
+Dim a As Integer
+Dim TableRange As Range
+
+Set wbThis = ActiveWorkbook
+
+Dim Ret
+Ret = IsWorkBookOpen(wbThis.Path & "\Accounts.xlsx")
+'Stop
+a = 1
+
+'==================================================================================================================================
+' Test if workbook is already openned. If not, open it. If yes activate it.
+
+If Ret = False Then
+        
+    Workbooks.Open filename:=wbThis.Path & "\Accounts.xlsx"
+
+Else
+
+    Workbooks("Accounts.xlsx").Activate
+    
+End If
+
+
+With wbThis.Path & "\Accounts.xlsx"
+    
+    Do Until Cells(a, 1).Value = ""
+                    
+        a = a + 1
+        
+    Loop
+
+    Set TableRange = Range(Cells(1, 1), Cells(a, 2))
+    
+    IAccount = Application.VLookup(LOCATION, TableRange, 2, False)
+    
+'Stop
+
+End With
+
+End Sub
+
+
+Function IsWorkBookOpen(filename As String)
+    Dim ff As Long, ErrNo As Long
+
+    On Error Resume Next
+    ff = FreeFile()
+    Open filename For Input Lock Read As #ff
+    Close ff
+    ErrNo = Err
+    On Error GoTo 0
+
+    Select Case ErrNo
+    Case 0:    IsWorkBookOpen = False
+    Case 70:   IsWorkBookOpen = True
+    Case Else: Error ErrNo
+    End Select
+
+End Function
